@@ -1,85 +1,55 @@
-import { useState, useMemo } from "react";
-import { chapters, lagrangeAxes, type Chapter } from "@/data/chapters";
-
-interface Node {
-  id: number;
-  x: number;
-  y: number;
-  chapter: Chapter;
-  axisId: string;
-}
-
-interface Connection {
-  from: number;
-  to: number;
-  axisId: string;
-}
+import { useState } from "react";
+import { useLagrangeData, type LagrangeNode } from "@/hooks/useLagrangeData";
 
 export function LagrangeMap() {
+  const { axes, nodes, connections, isLoading, error } = useLagrangeData();
   const [activeAxis, setActiveAxis] = useState<string | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
-  const { nodes, connections } = useMemo(() => {
-    const nodePositions: Node[] = [];
-    const lineConnections: Connection[] = [];
-    
-    // Create constellation layout
-    const centerX = 400;
-    const centerY = 300;
-    const radius = 220;
-    
-    chapters.forEach((chapter, index) => {
-      const angle = (index / chapters.length) * 2 * Math.PI - Math.PI / 2;
-      const jitter = Math.sin(index * 1.5) * 30;
-      
-      nodePositions.push({
-        id: chapter.id,
-        x: centerX + Math.cos(angle) * (radius + jitter),
-        y: centerY + Math.sin(angle) * (radius + jitter),
-        chapter,
-        axisId: chapter.axis,
-      });
-    });
+  const getNodeById = (id: string) => nodes.find((n) => n.id === id);
 
-    // Create connections within axes
-    lagrangeAxes.forEach((axis) => {
-      const axisChapters = axis.chapters.sort((a, b) => a - b);
-      for (let i = 0; i < axisChapters.length - 1; i++) {
-        lineConnections.push({
-          from: axisChapters[i],
-          to: axisChapters[i + 1],
-          axisId: axis.id,
-        });
-      }
-    });
+  if (isLoading) {
+    return (
+      <div className="relative w-full aspect-[4/3] max-w-4xl mx-auto flex items-center justify-center">
+        <div className="text-muted-foreground animate-pulse">
+          Cargando constelación...
+        </div>
+      </div>
+    );
+  }
 
-    return { nodes: nodePositions, connections: lineConnections };
-  }, []);
-
-  const getNodeById = (id: number) => nodes.find((n) => n.id === id);
+  if (error) {
+    return (
+      <div className="relative w-full aspect-[4/3] max-w-4xl mx-auto flex items-center justify-center">
+        <div className="text-destructive">Error al cargar el mapa</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full aspect-[4/3] max-w-4xl mx-auto">
       {/* Legend */}
       <div className="absolute top-4 left-4 z-10 bg-card/90 backdrop-blur-sm border border-border rounded-lg p-4 max-w-xs">
-        <h4 className="font-display text-sm font-semibold mb-3 text-primary">Ejes Narrativos</h4>
+        <h4 className="font-display text-sm font-semibold mb-3 text-primary">
+          Ejes Narrativos
+        </h4>
         <div className="space-y-2">
-          {lagrangeAxes.map((axis) => (
+          {axes.map((axis) => (
             <button
               key={axis.id}
               className={`flex items-center gap-2 text-xs w-full text-left transition-all p-1.5 rounded ${
-                activeAxis === axis.id 
-                  ? "bg-primary/20 text-primary" 
+                activeAxis === axis.id
+                  ? "bg-primary/20 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onMouseEnter={() => setActiveAxis(axis.id)}
               onMouseLeave={() => setActiveAxis(null)}
             >
-              <span 
+              <span
                 className="w-3 h-3 rounded-full shrink-0"
                 style={{ backgroundColor: axis.color }}
               />
-              <span className="truncate">{axis.name}</span>
+              <span className="truncate">{axis.label}</span>
             </button>
           ))}
         </div>
@@ -87,7 +57,7 @@ export function LagrangeMap() {
 
       {/* SVG Map */}
       <svg
-        viewBox="0 0 800 600"
+        viewBox="0 0 1200 800"
         className="w-full h-full"
         style={{ filter: "drop-shadow(0 0 20px rgba(0,0,0,0.5))" }}
       >
@@ -108,23 +78,31 @@ export function LagrangeMap() {
 
         {/* Connections */}
         <g className="connections">
-          {connections.map((conn, idx) => {
-            const fromNode = getNodeById(conn.from);
-            const toNode = getNodeById(conn.to);
+          {connections.map((conn) => {
+            const fromNode = getNodeById(conn.from_node);
+            const toNode = getNodeById(conn.to_node);
             if (!fromNode || !toNode) return null;
-            
-            const axis = lagrangeAxes.find((a) => a.id === conn.axisId);
-            const isActive = activeAxis === conn.axisId || !activeAxis;
-            
+
+            const fromAxis = axes.find((a) => a.id === fromNode.eje);
+            const isActive =
+              activeAxis === fromNode.eje ||
+              activeAxis === toNode.eje ||
+              !activeAxis;
+
+            // Calculate curved path
+            const midX = (fromNode.position_x + toNode.position_x) / 2;
+            const midY = (fromNode.position_y + toNode.position_y) / 2;
+            const offsetX = (toNode.position_y - fromNode.position_y) * 0.2;
+            const offsetY = (fromNode.position_x - toNode.position_x) * 0.2;
+
             return (
-              <line
-                key={idx}
-                x1={fromNode.x}
-                y1={fromNode.y}
-                x2={toNode.x}
-                y2={toNode.y}
-                stroke={axis?.color || "hsl(38, 60%, 35%)"}
+              <path
+                key={conn.id}
+                d={`M${fromNode.position_x} ${fromNode.position_y} Q${midX + offsetX} ${midY + offsetY} ${toNode.position_x} ${toNode.position_y}`}
+                stroke={fromAxis?.color || "#777"}
                 strokeWidth={isActive ? 2 : 1}
+                fill="none"
+                strokeDasharray={conn.tipo === "retroalimentacion" ? "4 2" : "none"}
                 opacity={isActive ? 0.6 : 0.15}
                 className="transition-all duration-300"
                 filter={isActive ? "url(#glow)" : undefined}
@@ -136,10 +114,10 @@ export function LagrangeMap() {
         {/* Nodes */}
         <g className="nodes">
           {nodes.map((node) => {
-            const axis = lagrangeAxes.find((a) => a.id === node.axisId);
-            const isActive = activeAxis === node.axisId || !activeAxis;
+            const axis = axes.find((a) => a.id === node.eje);
+            const isActive = activeAxis === node.eje || !activeAxis;
             const isHovered = hoveredNode === node.id;
-            
+
             return (
               <g
                 key={node.id}
@@ -149,45 +127,46 @@ export function LagrangeMap() {
                 style={{
                   opacity: isActive ? 1 : 0.3,
                   transform: isHovered ? "scale(1.2)" : "scale(1)",
-                  transformOrigin: `${node.x}px ${node.y}px`,
+                  transformOrigin: `${node.position_x}px ${node.position_y}px`,
                 }}
               >
                 {/* Glow circle */}
                 {isHovered && (
                   <circle
-                    cx={node.x}
-                    cy={node.y}
-                    r={25}
+                    cx={node.position_x}
+                    cy={node.position_y}
+                    r={30}
                     fill="url(#nodeGlow)"
                     className="animate-pulse-slow"
                   />
                 )}
-                
+
                 {/* Main node */}
                 <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={isHovered ? 12 : 8}
+                  cx={node.position_x}
+                  cy={node.position_y}
+                  r={isHovered ? 14 : 10}
                   fill={axis?.color || "hsl(38, 92%, 50%)"}
                   stroke="hsl(222, 47%, 5%)"
                   strokeWidth={2}
                   filter="url(#glow)"
                   className="transition-all duration-200"
+                  data-episodio={node.episodio}
                 />
-                
+
                 {/* Node number */}
                 <text
-                  x={node.x}
-                  y={node.y + 1}
+                  x={node.position_x}
+                  y={node.position_y + 1}
                   textAnchor="middle"
                   dominantBaseline="middle"
                   fill="hsl(222, 47%, 5%)"
-                  fontSize={isHovered ? "8" : "6"}
+                  fontSize={isHovered ? "9" : "7"}
                   fontWeight="bold"
                   fontFamily="var(--font-display)"
                   className="pointer-events-none"
                 >
-                  {node.id}
+                  {node.episodio}
                 </text>
               </g>
             );
@@ -196,22 +175,47 @@ export function LagrangeMap() {
       </svg>
 
       {/* Tooltip */}
-      {hoveredNode && (
-        <div 
-          className="absolute z-20 bg-card border border-primary/40 rounded-lg p-3 shadow-lg max-w-xs pointer-events-none animate-scale-in"
-          style={{
-            left: `${(getNodeById(hoveredNode)?.x || 0) / 8 + 5}%`,
-            top: `${(getNodeById(hoveredNode)?.y || 0) / 6}%`,
-          }}
-        >
-          <p className="text-xs text-primary uppercase tracking-wider mb-1">
-            {getNodeById(hoveredNode)?.chapter.lagrangeTag}
-          </p>
-          <h4 className="font-display font-semibold text-sm">
-            {getNodeById(hoveredNode)?.chapter.title}
-          </h4>
-        </div>
-      )}
+      {hoveredNode && (() => {
+        const node = getNodeById(hoveredNode);
+        if (!node) return null;
+        const axis = axes.find((a) => a.id === node.eje);
+        
+        return (
+          <div
+            className="absolute z-20 bg-card border border-primary/40 rounded-lg p-4 shadow-lg max-w-xs pointer-events-none animate-scale-in"
+            style={{
+              left: `${(node.position_x / 12) + 2}%`,
+              top: `${(node.position_y / 8)}%`,
+            }}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <span
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: axis?.color }}
+              />
+              <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                {axis?.label}
+              </span>
+            </div>
+            <h4 className="font-display font-semibold text-sm mb-2">
+              Ep. {node.episodio}: {node.titulo}
+            </h4>
+            <div className="flex flex-wrap gap-1">
+              {node.palabras_clave.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-2 capitalize">
+              Ángulo: {node.angulo}
+            </p>
+          </div>
+        );
+      })()}
     </div>
   );
 }

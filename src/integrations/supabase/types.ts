@@ -14,7 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lagrange_axes: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          label: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id: string
+          label: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          label?: string
+        }
+        Relationships: []
+      }
+      lagrange_connections: {
+        Row: {
+          created_at: string
+          from_node: string
+          id: string
+          tipo: Database["public"]["Enums"]["connection_type"]
+          to_node: string
+        }
+        Insert: {
+          created_at?: string
+          from_node: string
+          id?: string
+          tipo?: Database["public"]["Enums"]["connection_type"]
+          to_node: string
+        }
+        Update: {
+          created_at?: string
+          from_node?: string
+          id?: string
+          tipo?: Database["public"]["Enums"]["connection_type"]
+          to_node?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lagrange_connections_from_node_fkey"
+            columns: ["from_node"]
+            isOneToOne: false
+            referencedRelation: "lagrange_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lagrange_connections_to_node_fkey"
+            columns: ["to_node"]
+            isOneToOne: false
+            referencedRelation: "lagrange_nodes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lagrange_nodes: {
+        Row: {
+          angulo: Database["public"]["Enums"]["node_angle"]
+          created_at: string
+          eje: string
+          episodio: number
+          id: string
+          palabras_clave: string[] | null
+          position_x: number | null
+          position_y: number | null
+          titulo: string
+          url: string | null
+        }
+        Insert: {
+          angulo?: Database["public"]["Enums"]["node_angle"]
+          created_at?: string
+          eje: string
+          episodio: number
+          id: string
+          palabras_clave?: string[] | null
+          position_x?: number | null
+          position_y?: number | null
+          titulo: string
+          url?: string | null
+        }
+        Update: {
+          angulo?: Database["public"]["Enums"]["node_angle"]
+          created_at?: string
+          eje?: string
+          episodio?: number
+          id?: string
+          palabras_clave?: string[] | null
+          position_x?: number | null
+          position_y?: number | null
+          titulo?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lagrange_nodes_eje_fkey"
+            columns: ["eje"]
+            isOneToOne: false
+            referencedRelation: "lagrange_axes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +129,19 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      connection_type:
+        | "consecuencia"
+        | "retroalimentacion"
+        | "tension"
+        | "espejo"
+        | "contradiccion"
+      node_angle:
+        | "psicologico"
+        | "institucional"
+        | "tecnologico"
+        | "existencial"
+        | "politico"
+        | "filosofico"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +268,22 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      connection_type: [
+        "consecuencia",
+        "retroalimentacion",
+        "tension",
+        "espejo",
+        "contradiccion",
+      ],
+      node_angle: [
+        "psicologico",
+        "institucional",
+        "tecnologico",
+        "existencial",
+        "politico",
+        "filosofico",
+      ],
+    },
   },
 } as const
