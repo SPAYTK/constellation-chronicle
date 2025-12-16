@@ -5,8 +5,12 @@ import { SYSTEM_PROMPT } from "./systemPrompt";
 import { buildAgentPromptWithPilares, buildPilarAnalysisPrompt } from "./prompts";
 import { pilares } from "@/data/pilares";
 
-const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+const GOOGLE_API_KEY = "AIzaSyATvjH8T6OT5vwWKncAMVp1NTHntVUpBZE";
+<<<<<<< HEAD
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
+=======
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+>>>>>>> 4151c41 (Fix: actualiza modelo Gemini a gemini-pro, amplía respuesta IA a 4 líneas, repara despliegue y compatibilidad API)
 
 /**
  * Verifica si el agente está configurado con API real

@@ -17,12 +17,13 @@ export function useLaboratorioIA() {
     const prompt = buildLaboratorioPrompt(input);
     
     try {
-      const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
+      const GOOGLE_API_KEY = "AIzaSyATvjH8T6OT5vwWKncAMVp1NTHntVUpBZE";
       
       if (!GOOGLE_API_KEY) {
         throw new Error("API key no configurada. Define VITE_GOOGLE_API_KEY en .env.local");
       }
 
+<<<<<<< HEAD
       const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent";
       
       const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
@@ -37,6 +38,22 @@ export function useLaboratorioIA() {
             maxOutputTokens: 2048,
           }
         })
+=======
+      // --- MOCK PARA DESARROLLO ---
+      await new Promise(r => setTimeout(r, 1200));
+      setOutput({
+        supuesto: "El usuario asume que el control es siempre externo.",
+        contradiccion: "Busca protección pero rechaza vigilancia.",
+        eje: input.ejes[0] || "miedo",
+        tension: input.tension,
+        preguntaEvita: "¿Qué parte del control es autoimpuesta?",
+        narrativa: [
+          "El sistema detecta un patrón recursivo: quien pide protección institucional termina vigilándose a sí mismo.",
+          "La jaula no necesita guardias cuando el prisionero asume el rol.",
+          "El miedo a la vigilancia se convierte en auto-vigilancia, perpetuando la paradoja.",
+          "¿Qué mecanismos internos refuerzan la sumisión bajo la apariencia de protección?"
+        ].join("\n")
+>>>>>>> 4151c41 (Fix: actualiza modelo Gemini a gemini-pro, amplía respuesta IA a 4 líneas, repara despliegue y compatibilidad API)
       });
 
       if (!response.ok) {
