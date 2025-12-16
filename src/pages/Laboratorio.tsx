@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import AgentPanel from "@/components/AgentPanel";
 import { Brain, Database, Workflow, Sparkles, FileJson, Terminal } from "lucide-react";
 
 const tools = [
@@ -98,7 +99,7 @@ export default function Laboratorio() {
           </div>
 
           {/* Workflow Section */}
-          <section className="max-w-4xl mx-auto">
+          <section className="max-w-4xl mx-auto mb-16">
             <h2 className="font-display text-2xl font-semibold mb-8">
               Flujo de Producción
             </h2>
@@ -153,6 +154,19 @@ export default function Laboratorio() {
                 ))}
               </div>
             </div>
+          </section>
+
+          {/* Agent Panel Section */}
+          <section className="max-w-4xl mx-auto">
+            <h2 className="font-display text-2xl font-semibold mb-6">
+              Agente de Fricción Intelectual
+            </h2>
+            <AgentPanel 
+              context={{
+                corpus: "El Sistema Lagrange es una red de 52 puntos narrativos interconectados que exploran la tensión entre miedo, control, conciencia y rebelión silenciosa.",
+                angle: "legitimidad institucional"
+              }}
+            />
           </section>
         </div>
       </main>
