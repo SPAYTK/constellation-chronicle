@@ -81,15 +81,15 @@ export default function Laboratorio() {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           {/* --- Laboratorio de Análisis Crítico --- */}
-          <section className="max-w-2xl mx-auto p-6 space-y-6 mb-16 border border-primary/20 rounded-lg bg-card">
-            <h2 className="text-2xl font-bold mb-2">Laboratorio de Análisis Crítico</h2>
+          <section className="max-w-2xl mx-auto p-6 space-y-6 mb-16 border border-destructive/30 rounded-lg bg-destructive/5">
+            <h2 className="text-2xl font-bold mb-2 text-destructive">Laboratorio de Análisis Crítico</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Selector de marco */}
               <div>
-                <label className="font-semibold">Ejes conceptuales:</label>
+                <label className="font-semibold text-destructive">Ejes conceptuales:</label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {lagrangeMap.ejes.map((e: any) => (
-                    <label key={e.id} className="flex items-center gap-1">
+                    <label key={e.id} className="flex items-center gap-1 text-sm">
                       <input
                         type="checkbox"
                         value={e.id}
@@ -103,21 +103,21 @@ export default function Laboratorio() {
               </div>
               <div className="flex gap-4">
                 <div>
-                  <label className="font-semibold">Nivel:</label>
-                  <select value={nivel} onChange={e => setNivel(e.target.value)} className="ml-2">
+                  <label className="font-semibold text-destructive">Nivel:</label>
+                  <select value={nivel} onChange={e => setNivel(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                     {niveles.map(n => <option key={n}>{n}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="font-semibold">Tensión:</label>
-                  <select value={tension} onChange={e => setTension(e.target.value)} className="ml-2">
+                  <label className="font-semibold text-destructive">Tensión:</label>
+                  <select value={tension} onChange={e => setTension(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                     {tensiones.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               {/* Área de entrada */}
               <div>
-                <label className="font-semibold">Texto libre:</label>
+                <label className="font-semibold text-destructive">Texto libre:</label>
                 <textarea
                   className="w-full border border-destructive/50 rounded p-3 mt-1 bg-destructive/5 focus:bg-destructive/10 focus:border-destructive transition-colors"
                   rows={3}
@@ -127,8 +127,8 @@ export default function Laboratorio() {
                 />
               </div>
               <div>
-                <label className="font-semibold">Pregunta socrática:</label>
-                <select value={preguntaId} onChange={e => setPreguntaId(e.target.value)} className="ml-2">
+                <label className="font-semibold text-destructive">Pregunta socrática:</label>
+                <select value={preguntaId} onChange={e => setPreguntaId(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                   <option value="">(Ninguna)</option>
                   {lagrangeMap.preguntas.map((p: any) => (
                     <option key={p.id} value={p.id}>{p.id} - {p.eje}</option>
