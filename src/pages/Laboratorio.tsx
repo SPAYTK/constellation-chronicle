@@ -44,7 +44,7 @@ const tools = [
 const statusColors = {
   active: "bg-green-500/20 text-green-400 border-green-500/30",
   building: "bg-primary/20 text-primary border-primary/30",
-  planned: "bg-muted text-muted-foreground border-border",
+  planned: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 const statusLabels = {
@@ -159,13 +159,13 @@ export default function Laboratorio() {
 
           {/* Workflow Section */}
           <section className="max-w-4xl mx-auto mb-16">
-            <h2 className="font-display text-2xl font-semibold mb-8">
+            <h2 className="font-display text-2xl font-semibold mb-8 text-destructive">
               Flujo de Producción
             </h2>
             
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute left-6 top-0 bottom-0 w-px bg-border" />
+              <div className="absolute left-6 top-0 bottom-0 w-px bg-destructive/30" />
               
               <div className="space-y-8">
                 {[
@@ -196,16 +196,16 @@ export default function Laboratorio() {
                   },
                 ].map((item) => (
                   <div key={item.step} className="relative pl-16">
-                    <div className="absolute left-0 w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center">
-                      <span className="font-display text-lg font-bold text-primary">
+                    <div className="absolute left-0 w-12 h-12 rounded-full bg-destructive/10 border border-destructive/50 flex items-center justify-center">
+                      <span className="font-display text-lg font-bold text-destructive">
                         {item.step}
                       </span>
                     </div>
-                    <div className="bg-card border border-border rounded-lg p-5">
-                      <h3 className="font-display font-semibold mb-2">
+                    <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-5">
+                      <h3 className="font-display font-semibold mb-2 text-destructive">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-destructive/80">
                         {item.description}
                       </p>
                     </div>
@@ -217,7 +217,7 @@ export default function Laboratorio() {
 
           {/* Agent Panel Section */}
           <section className="max-w-4xl mx-auto">
-            <h2 className="font-display text-2xl font-semibold mb-6">
+            <h2 className="font-display text-2xl font-semibold mb-6 text-destructive">
               Agente de Fricción Intelectual
             </h2>
             <AgentPanel 
