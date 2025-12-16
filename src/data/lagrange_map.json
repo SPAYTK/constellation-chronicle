@@ -1,74 +1,35 @@
-```json
-/*
- * lagrange_map.json
- * Capa de datos del mapa conceptual del Sistema Lagrange.
- *
- * - Ejes, preguntas, episodios y relaciones de tensión.
- * - Usar como fuente para visualización y navegación conceptual.
- * - No modificar estructura sin actualizar lagrange_map_frontend.md y SVG.
- */
-
 {
   "ejes": [
-    { "id": "miedo", "label": "Miedo", "descripcion": "" },
-    { "id": "control", "label": "Control", "descripcion": "" },
-    { "id": "salud_mental", "label": "Salud Mental", "descripcion": "" },
-    { "id": "legitimidad", "label": "Legitimidad", "descripcion": "" },
-    { "id": "responsabilidad", "label": "Responsabilidad", "descripcion": "" }
+    { "id": "miedo", "label": "Miedo", "descripcion": "Exclusión social, legitimidad del malestar" },
+    { "id": "control", "label": "Control", "descripcion": "Productividad, disciplina, normalización" },
+    { "id": "salud_mental", "label": "Salud Mental", "descripcion": "Diagnóstico, tratamiento, responsabilidad individual" },
+    { "id": "legitimidad", "label": "Legitimidad", "descripcion": "Autoridad experta, verdad institucional" },
+    { "id": "responsabilidad", "label": "Responsabilidad", "descripcion": "Individual vs estructural, culpa vs contexto" }
   ],
   "preguntas": [
     {
       "id": "Q01",
       "eje": "miedo",
-      "nivel": "sistemico",
-      "tension": "politica",
-      "relaciones": ["Q08", "Q12"],
+      "nivel": "individual",
+      "tension": "psicologica",
+      "texto": "¿Silenciaste tu incomodidad por miedo a la exclusión?",
       "episodios": ["E01"]
     },
     {
       "id": "Q02",
-      "eje": "responsabilidad",
-      "nivel": "individual",
-      "tension": "etica",
-      "relaciones": ["Q05", "Q07"],
-      "episodios": ["E05"]
-    },
-    {
-      "id": "Q03",
       "eje": "control",
-      "nivel": "tecnico",
-      "tension": "simbolica",
-      "relaciones": ["Q04", "Q06"],
+      "nivel": "institucional",
+      "tension": "politica",
+      "texto": "¿Quién decide qué conductas son normales?",
       "episodios": ["E02"]
     },
     {
-      "id": "Q04",
+      "id": "Q03",
       "eje": "salud_mental",
-      "nivel": "social",
-      "tension": "institucional",
-      "relaciones": ["Q03", "Q09"],
+      "nivel": "sistemico",
+      "tension": "simbolica",
+      "texto": "¿El diagnóstico describe o construye tu malestar?",
       "episodios": ["E03"]
-    },
-    {
-      "id": "Q05",
-      "eje": "legitimidad",
-      "nivel": "cultural",
-      "tension": "politica",
-      "relaciones": ["Q02", "Q10"],
-      "episodios": ["E04"]
     }
-  ],
-  "relaciones": [
-    { "origen": "Q01", "destino": "Q08", "tipo": "refuerza" },
-    { "origen": "Q01", "destino": "Q12", "tipo": "contradice" },
-    { "origen": "Q02", "destino": "Q05", "tipo": "desplaza" },
-    { "origen": "Q02", "destino": "Q07", "tipo": "contradice" },
-    { "origen": "Q03", "destino": "Q04", "tipo": "refuerza" },
-    { "origen": "Q03", "destino": "Q06", "tipo": "desplaza" },
-    { "origen": "Q04", "destino": "Q03", "tipo": "contradice" },
-    { "origen": "Q04", "destino": "Q09", "tipo": "refuerza" },
-    { "origen": "Q05", "destino": "Q02", "tipo": "contradice" },
-    { "origen": "Q05", "destino": "Q10", "tipo": "refuerza" }
   ]
 }
-```

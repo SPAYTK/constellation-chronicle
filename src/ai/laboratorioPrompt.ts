@@ -14,6 +14,7 @@ Estructura de salida:
 - Eje activado:
 - Tensión dominante:
 - Pregunta que el sistema evita:
+- Narrativa: (2 líneas máximo que sinteticen la tensión detectada en lenguaje directo y sin concesiones)
 
 Criterios de análisis publicable:
 - Exponer al menos una contradicción y un supuesto.

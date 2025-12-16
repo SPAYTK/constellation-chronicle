@@ -23,3 +23,7 @@ export const episodes: Episode[] = episodesJson as Episode[];
 
 export const getEpisodesByEstado = (estado: 'borrador' | 'publicado'): Episode[] =>
   episodes.filter(e => e.estado === estado);
+
+export const getLatestEpisodes = (count: number = 3): Episode[] => {
+  return episodes.slice(0, count);
+};

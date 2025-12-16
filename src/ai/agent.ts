@@ -1,7 +1,9 @@
 // Agente IA para análisis crítico del Sistema Lagrange
 
-import { AgentInput, AgentOutput, AgentError } from "./types";
+import { AgentInput, AgentOutput, AgentError, PilarAnalysisInput, PilarAnalysisOutput } from "./types";
 import { SYSTEM_PROMPT } from "./systemPrompt";
+import { buildAgentPromptWithPilares, buildPilarAnalysisPrompt } from "./prompts";
+import { pilares } from "@/data/pilares";
 
 const GOOGLE_API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
@@ -15,7 +17,7 @@ export function isAgentConfigured(): boolean {
 
 /**
  * Ejecuta el agente de análisis crítico usando Google Gemini
- * No dialoga - solo analiza y genera fricción
+ * Ahora incluye contexto de pilares fundamentales
  */
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   try {
@@ -24,79 +26,115 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
       throw new Error("API_KEY_MISSING");
     }
 
-    // Preparar el prompt para Gemini
-    const prompt = `${SYSTEM_PROMPT}
+    // Usar pilares del input o todos por defecto
+    const pilaresContext = input.pilares || pilares;
 
-Contexto de análisis:
-- Corpus: ${input.corpus.substring(0, 500)}...
-- Ángulo: ${input.angle}
+    // Preparar el prompt para Gemini con contexto de pilares
+    const prompt = buildAgentPromptWithPilares(
+      input.corpus,
+      input.angle,
+      pilaresContext
+    );
 
-Analiza este contexto y responde SOLO con un objeto JSON válido siguiendo este formato exacto:
-{
-  "affirmation": "Una afirmación del corpus o contexto",
-  "contradiction": "Una contradicción estructural o conceptual",
-  "openQuestion": "Una pregunta socrática sin respuesta fácil",
-  "suggestedNodes": ["nodo1", "nodo2"]
-}`;
+    const requestBody = {
+      contents: [
+        {
+          parts: [{ text: prompt }]
+        }
+      ],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      }
+    };
 
     const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.9,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        }
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Gemini API error: ${response.status} - ${JSON.stringify(errorData)}`);
+      throw new Error(`API_ERROR: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
     
-    if (!text) {
-      throw new Error("No se recibió respuesta del agente");
-    }
-
-    // Extraer JSON del texto (Gemini a veces incluye markdown)
+    // Extraer JSON de la respuesta
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      throw new Error("El agente no devolvió JSON válido");
+      throw new Error("INVALID_RESPONSE_FORMAT");
     }
 
-    const output: AgentOutput = JSON.parse(jsonMatch[0]);
-    return output;
+    const result = JSON.parse(jsonMatch[0]);
+    return result as AgentOutput;
 
-  } catch (error) {
-    console.error("Error en runAgent:", error);
-    
-    // Error específico de API key faltante
-    if (error instanceof Error && error.message === "API_KEY_MISSING") {
-      const err: AgentError = {
-        message: "Agente no configurado. Se requiere VITE_GOOGLE_API_KEY.",
-        code: "API_KEY_MISSING"
-      };
-      throw err;
+  } catch (error: any) {
+    throw {
+      message: error.message || "Error desconocido",
+      code: error.code || "UNKNOWN_ERROR"
+    } as AgentError;
+  }
+}
+
+/**
+ * Análisis específico basado en pilares fundamentales
+ */
+export async function analyzePilares(input: PilarAnalysisInput): Promise<PilarAnalysisOutput> {
+  try {
+    if (!GOOGLE_API_KEY) {
+      throw new Error("API_KEY_MISSING");
     }
-    
-    const err: AgentError = {
-      message: error instanceof Error ? error.message : "Error desconocido",
-      code: "AGENT_ERROR"
+
+    const pilaresContext = input.pilarId 
+      ? pilares.filter(p => p.id === input.pilarId)
+      : pilares;
+
+    const prompt = buildPilarAnalysisPrompt(
+      input.texto,
+      pilaresContext,
+      input.pilarId
+    );
+
+    const requestBody = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 1024,
+      }
     };
-    throw err;
+
+    const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      throw new Error(`API_ERROR: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("INVALID_RESPONSE_FORMAT");
+    }
+
+    const result = JSON.parse(jsonMatch[0]);
+    return result as PilarAnalysisOutput;
+
+  } catch (error: any) {
+    throw {
+      message: error.message || "Error desconocido",
+      code: error.code || "UNKNOWN_ERROR"
+    } as AgentError;
   }
 }
 

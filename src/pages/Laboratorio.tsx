@@ -119,7 +119,7 @@ export default function Laboratorio() {
               <div>
                 <label className="font-semibold">Texto libre:</label>
                 <textarea
-                  className="w-full border rounded p-2 mt-1"
+                  className="w-full border border-destructive/50 rounded p-3 mt-1 bg-destructive/5 focus:bg-destructive/10 focus:border-destructive transition-colors"
                   rows={3}
                   value={texto}
                   onChange={e => setTexto(e.target.value)}
@@ -135,14 +135,18 @@ export default function Laboratorio() {
                   ))}
                 </select>
               </div>
-              <button type="submit" className="bg-black text-white px-4 py-2 rounded" disabled={loading}>
+              <button type="submit" className="bg-destructive text-destructive-foreground px-4 py-2 rounded hover:bg-destructive/90 transition-colors font-semibold" disabled={loading}>
                 {loading ? "Analizando..." : "Analizar"}
               </button>
             </form>
             {/* Salida estructurada */}
-            {error && <div className="text-red-600">{error}</div>}
+            {error && <div className="text-destructive border border-destructive/50 rounded p-3 bg-destructive/10">{error}</div>}
             {output && (
-              <div className="border rounded p-4 bg-gray-50 space-y-2">
+              <div className="border border-destructive/50 rounded p-4 bg-destructive/5 space-y-3">
+                <div className="border-l-4 border-destructive pl-3 py-1">
+                  <span className="font-semibold text-destructive">Narrativa:</span>
+                  <p className="text-sm mt-1 italic">{output.narrativa}</p>
+                </div>
                 <div><span className="font-semibold">Supuesto implícito detectado:</span> {output.supuesto}</div>
                 <div><span className="font-semibold">Contradicción principal:</span> {output.contradiccion}</div>
                 <div><span className="font-semibold">Eje activado:</span> {output.eje}</div>
