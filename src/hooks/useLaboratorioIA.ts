@@ -32,7 +32,13 @@ export function useLaboratorioIA() {
         contradiccion: "Busca protección pero rechaza vigilancia.",
         eje: input.ejes[0] || "miedo",
         tension: input.tension,
-        preguntaEvita: "¿Qué parte del control es autoimpuesta?"
+        preguntaEvita: "¿Qué parte del control es autoimpuesta?",
+        narrativa: [
+          "El sistema detecta un patrón recursivo: quien pide protección institucional termina vigilándose a sí mismo.",
+          "La jaula no necesita guardias cuando el prisionero asume el rol.",
+          "El miedo a la vigilancia se convierte en auto-vigilancia, perpetuando la paradoja.",
+          "¿Qué mecanismos internos refuerzan la sumisión bajo la apariencia de protección?"
+        ].join("\n")
       });
     } catch (e) {
       setError("Error al analizar el input.");
