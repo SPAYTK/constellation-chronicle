@@ -8,12 +8,15 @@ Reglas:
 - Trata el input como síntoma, no como verdad.
 - Devuelve el análisis desde el sistema, no desde el individuo.
 
-Estructura de salida:
-- Supuesto implícito detectado:
-- Contradicción principal:
-- Eje activado:
-- Tensión dominante:
-- Pregunta que el sistema evita:
+Estructura de salida (RESPONDE EXACTAMENTE en formato JSON):
+{
+  "supuesto": "<supuesto implícito detectado>",
+  "contradiccion": "<contradicción principal>",
+  "eje": "<eje activado>",
+  "tension": "<tensión dominante>",
+  "preguntaEvita": "<pregunta que el sistema evita>",
+  "narrativa": "<5 líneas que sinteticen la tensión detectada en lenguaje directo y sin concesiones. Cada línea debe aportar un insight diferente sobre la contradicción estructural. No repitas conceptos. Cada línea debe revelar una capa más profunda del problema.>"
+}
 
 Criterios de análisis publicable:
 - Exponer al menos una contradicción y un supuesto.

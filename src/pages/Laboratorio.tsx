@@ -44,7 +44,7 @@ const tools = [
 const statusColors = {
   active: "bg-green-500/20 text-green-400 border-green-500/30",
   building: "bg-primary/20 text-primary border-primary/30",
-  planned: "bg-muted text-muted-foreground border-border",
+  planned: "bg-destructive/10 text-destructive border-destructive/30",
 };
 
 const statusLabels = {
@@ -81,15 +81,15 @@ export default function Laboratorio() {
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
           {/* --- Laboratorio de Análisis Crítico --- */}
-          <section className="max-w-2xl mx-auto p-6 space-y-6 mb-16 border border-primary/20 rounded-lg bg-card">
-            <h2 className="text-2xl font-bold mb-2">Laboratorio de Análisis Crítico</h2>
+          <section className="max-w-2xl mx-auto p-6 space-y-6 mb-16 border border-destructive/30 rounded-lg bg-destructive/5">
+            <h2 className="text-2xl font-bold mb-2 text-destructive">Laboratorio de Análisis Crítico</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Selector de marco */}
               <div>
-                <label className="font-semibold">Ejes conceptuales:</label>
+                <label className="font-semibold text-destructive">Ejes conceptuales:</label>
                 <div className="flex flex-wrap gap-2 mt-1">
                   {lagrangeMap.ejes.map((e: any) => (
-                    <label key={e.id} className="flex items-center gap-1">
+                    <label key={e.id} className="flex items-center gap-1 text-sm">
                       <input
                         type="checkbox"
                         value={e.id}
@@ -103,23 +103,23 @@ export default function Laboratorio() {
               </div>
               <div className="flex gap-4">
                 <div>
-                  <label className="font-semibold">Nivel:</label>
-                  <select value={nivel} onChange={e => setNivel(e.target.value)} className="ml-2">
+                  <label className="font-semibold text-destructive">Nivel:</label>
+                  <select value={nivel} onChange={e => setNivel(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                     {niveles.map(n => <option key={n}>{n}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="font-semibold">Tensión:</label>
-                  <select value={tension} onChange={e => setTension(e.target.value)} className="ml-2">
+                  <label className="font-semibold text-destructive">Tensión:</label>
+                  <select value={tension} onChange={e => setTension(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                     {tensiones.map(t => <option key={t}>{t}</option>)}
                   </select>
                 </div>
               </div>
               {/* Área de entrada */}
               <div>
-                <label className="font-semibold">Texto libre:</label>
+                <label className="font-semibold text-destructive">Texto libre:</label>
                 <textarea
-                  className="w-full border rounded p-2 mt-1"
+                  className="w-full border border-destructive/50 rounded p-3 mt-1 bg-destructive/5 focus:bg-destructive/10 focus:border-destructive transition-colors"
                   rows={3}
                   value={texto}
                   onChange={e => setTexto(e.target.value)}
@@ -127,22 +127,26 @@ export default function Laboratorio() {
                 />
               </div>
               <div>
-                <label className="font-semibold">Pregunta socrática:</label>
-                <select value={preguntaId} onChange={e => setPreguntaId(e.target.value)} className="ml-2">
+                <label className="font-semibold text-destructive">Pregunta socrática:</label>
+                <select value={preguntaId} onChange={e => setPreguntaId(e.target.value)} className="ml-2 border-destructive/50 bg-destructive/5">
                   <option value="">(Ninguna)</option>
                   {lagrangeMap.preguntas.map((p: any) => (
                     <option key={p.id} value={p.id}>{p.id} - {p.eje}</option>
                   ))}
                 </select>
               </div>
-              <button type="submit" className="bg-black text-white px-4 py-2 rounded" disabled={loading}>
+              <button type="submit" className="bg-destructive text-destructive-foreground px-4 py-2 rounded hover:bg-destructive/90 transition-colors font-semibold" disabled={loading}>
                 {loading ? "Analizando..." : "Analizar"}
               </button>
             </form>
             {/* Salida estructurada */}
-            {error && <div className="text-red-600">{error}</div>}
+            {error && <div className="text-destructive border border-destructive/50 rounded p-3 bg-destructive/10">{error}</div>}
             {output && (
-              <div className="border rounded p-4 bg-gray-50 space-y-2">
+              <div className="border border-destructive/50 rounded p-4 bg-destructive/5 space-y-3">
+                <div className="border-l-4 border-destructive pl-3 py-1">
+                  <span className="font-semibold text-destructive">Narrativa:</span>
+                  <p className="text-sm mt-1 italic">{output.narrativa}</p>
+                </div>
                 <div><span className="font-semibold">Supuesto implícito detectado:</span> {output.supuesto}</div>
                 <div><span className="font-semibold">Contradicción principal:</span> {output.contradiccion}</div>
                 <div><span className="font-semibold">Eje activado:</span> {output.eje}</div>
@@ -155,13 +159,13 @@ export default function Laboratorio() {
 
           {/* Workflow Section */}
           <section className="max-w-4xl mx-auto mb-16">
-            <h2 className="font-display text-2xl font-semibold mb-8">
+            <h2 className="font-display text-2xl font-semibold mb-8 text-destructive">
               Flujo de Producción
             </h2>
             
             <div className="relative">
               {/* Timeline line */}
-              <div className="absolute left-6 top-0 bottom-0 w-px bg-border" />
+              <div className="absolute left-6 top-0 bottom-0 w-px bg-destructive/30" />
               
               <div className="space-y-8">
                 {[
@@ -192,16 +196,16 @@ export default function Laboratorio() {
                   },
                 ].map((item) => (
                   <div key={item.step} className="relative pl-16">
-                    <div className="absolute left-0 w-12 h-12 rounded-full bg-card border border-border flex items-center justify-center">
-                      <span className="font-display text-lg font-bold text-primary">
+                    <div className="absolute left-0 w-12 h-12 rounded-full bg-destructive/10 border border-destructive/50 flex items-center justify-center">
+                      <span className="font-display text-lg font-bold text-destructive">
                         {item.step}
                       </span>
                     </div>
-                    <div className="bg-card border border-border rounded-lg p-5">
-                      <h3 className="font-display font-semibold mb-2">
+                    <div className="bg-destructive/5 border border-destructive/30 rounded-lg p-5">
+                      <h3 className="font-display font-semibold mb-2 text-destructive">
                         {item.title}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-destructive/80">
                         {item.description}
                       </p>
                     </div>
@@ -213,7 +217,7 @@ export default function Laboratorio() {
 
           {/* Agent Panel Section */}
           <section className="max-w-4xl mx-auto">
-            <h2 className="font-display text-2xl font-semibold mb-6">
+            <h2 className="font-display text-2xl font-semibold mb-6 text-destructive">
               Agente de Fricción Intelectual
             </h2>
             <AgentPanel 
