@@ -38,8 +38,9 @@ O añádela a tu script de deploy en `package.json`:
 
 ## Modelo utilizado
 
-- **Modelo**: `gemini-1.5-flash`
-- **Ventajas**: Rápido, gratuito hasta cierto límite, buen razonamiento
+- **Modelo**: `gemini-2.0-flash`
+- **Ventajas**: Modelo más reciente, más rápido, mejor razonamiento, gratuito hasta cierto límite
+- **Mejoras vs 1.5**: Mayor capacidad contextual y respuestas más coherentes
 - **Límites**: Revisa la [documentación de cuotas](https://ai.google.dev/pricing)
 
 ## Funcionamiento
