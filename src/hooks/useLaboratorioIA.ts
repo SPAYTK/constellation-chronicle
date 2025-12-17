@@ -10,30 +10,30 @@ export function useLaboratorioIA() {
   const [output, setOutput] = useState<LaboratorioOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+
   async function analizar(input: LaboratorioInput) {
     setLoading(true);
     setError(null);
     setOutput(null);
-    const prompt = buildLaboratorioPrompt(input);
-    
-          const GOOGLE_API_KEY = "AIzaSyATvjH8T6OT5vwWKncAMVp1NTHntVUpBZE";
-          if (!GOOGLE_API_KEY) {
-            throw new Error("API key no configurada. Define VITE_GOOGLE_API_KEY en .env.local");
+    try {
+      const prompt = buildLaboratorioPrompt(input);
+      const GOOGLE_API_KEY = "AIzaSyATvjH8T6OT5vwWKncAMVp1NTHntVUpBZE";
+      if (!GOOGLE_API_KEY) {
+        throw new Error("API key no configurada. Define VITE_GOOGLE_API_KEY en .env.local");
+      }
+      const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+      const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.8,
+            topK: 40,
+            topP: 0.95,
+            maxOutputTokens: 2048,
           }
-          const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-          const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }],
-              generationConfig: {
-                temperature: 0.8,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 2048,
-              }
-            })
-          });
+        })
       });
 
       if (!response.ok) {
@@ -43,7 +43,7 @@ export function useLaboratorioIA() {
 
       const data = await response.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      
+
       if (!text) {
         throw new Error("Respuesta vacía de la API");
       }
@@ -56,7 +56,6 @@ export function useLaboratorioIA() {
 
       const result = JSON.parse(jsonMatch[0]);
       setOutput(result as LaboratorioOutput);
-      
     } catch (e: any) {
       console.error("Error en análisis:", e);
       setError(e.message || "Error al analizar el input.");
