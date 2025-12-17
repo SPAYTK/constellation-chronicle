@@ -1,0 +1,1 @@
+// Advertencia: Toda salida generada por IA en el Laboratorio debe ser revisada y validada por un humano antes de publicarse o integrarse en el sistema. La IA es asistente, nunca oráculo ni publicador automático.
