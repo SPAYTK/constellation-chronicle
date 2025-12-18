@@ -3,12 +3,12 @@ import { lagrangeEpisodesSchema } from "../data/lagrangeEpisodesSchema";
  * Genera un episodio completo usando Gemini 2.0 a partir del esquema JSON y el índice de episodio.
  */
 export async function generarEpisodioGemini(episodeId: number): Promise<string | null> {
-  const GOOGLE_API_KEY = "AIzaSyCE2y7nxv8KJkJqDNULlj4gKALpPxtBQR0";
+  const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
   const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
   const episode = lagrangeEpisodesSchema.episodes.find((ep: any) => ep.id === episodeId);
   if (!episode) return null;
   const prompt = `Genera el guion completo del episodio del podcast 'Lagrange en Llamas' siguiendo esta estructura:\n${JSON.stringify(episode, null, 2)}\nUtiliza el tono: ${lagrangeEpisodesSchema.tone} y la plantilla de actos: ${JSON.stringify(lagrangeEpisodesSchema.structure_template)}`;
-  const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -43,13 +43,14 @@ export function useLaboratorioIA() {
     setError(null);
     setOutput(null);
     try {
+
       const prompt = buildLaboratorioPrompt(input);
-      const GOOGLE_API_KEY = "AIzaSyCE2y7nxv8KJkJqDNULlj4gKALpPxtBQR0";
-      if (!GOOGLE_API_KEY) {
-        throw new Error("API key no configurada. Define VITE_GOOGLE_API_KEY en .env.local");
+      const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!GEMINI_API_KEY) {
+        throw new Error("API key no configurada. Define VITE_GEMINI_API_KEY en .env.local");
       }
       const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
-      const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
+      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

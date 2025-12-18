@@ -3,100 +3,64 @@ import { buildLaboratorioPrompt } from "../lib/laboratorioIA";
 import { llmClient } from "../lib/llmClient";
 
 export function SocraticQuestionsLab() {
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [axis, setAxis] = useState("Todos");
-  const [selectedQuestion, setSelectedQuestion] = useState<string>("");
+  const [messages, setMessages] = useState<{role: 'user'|'assistant', content: string}[]>([]);
   const [input, setInput] = useState("");
-  const [nivel, setNivel] = useState("individual");
-  const [tension, setTension] = useState("psicológica");
-  const [respuesta, setRespuesta] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    fetch("/src/data/socratic_questions.json")
-      .then((res) => res.json())
-      .then(setQuestions);
-  }, []);
-
-  const axes = [
-    "Todos",
-    ...Array.from(new Set(questions.map((q: any) => q.axis)))
-  ];
-
-  const filtered = axis === "Todos"
-    ? questions
-    : questions.filter((q: any) => q.axis === axis);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!input.trim()) return;
+    const userMsg = { role: 'user', content: input };
+    setMessages((prev) => [...prev, userMsg]);
+    setInput("");
     setLoading(true);
-    setRespuesta("");
-    const pregunta = questions.find((q) => q.id === Number(selectedQuestion));
-    const prompt = buildLaboratorioPrompt({
-      texto: input,
-      preguntaId: pregunta ? pregunta.question : undefined,
-      ejes: axis === "Todos" ? [] : [axis],
-      nivel: nivel as any,
-      tension: tension as any,
-    });
     try {
-      const resp = await llmClient.analizar(prompt);
-      setRespuesta(resp);
+      // El prompt rector y la lógica de backend siguen activos
+      const resp = await llmClient.analizar(input);
+      setMessages((prev) => [...prev, { role: 'assistant', content: resp }]);
     } catch (err) {
-      setRespuesta("Error al consultar Gemini");
+      setMessages((prev) => [...prev, { role: 'assistant', content: 'Error al consultar Gemini' }]);
     }
     setLoading(false);
   };
 
   return (
     <section className="mb-16">
-      <h2 className="font-display text-2xl font-semibold mb-4">Laboratorio Socrático (IA)</h2>
-      <form className="mb-6 space-y-4" onSubmit={handleSubmit}>
-        <div className="flex gap-2 flex-wrap">
-          <select value={axis} onChange={e => setAxis(e.target.value)} className="border rounded px-2 py-1">
-            {axes.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-          <select value={selectedQuestion} onChange={e => setSelectedQuestion(e.target.value)} className="border rounded px-2 py-1">
-            <option value="">Selecciona pregunta</option>
-            {filtered.map((q: any) => (
-              <option key={q.id} value={q.id}>{q.question}</option>
-            ))}
-          </select>
-          <select value={nivel} onChange={e => setNivel(e.target.value)} className="border rounded px-2 py-1">
-            <option value="individual">Individual</option>
-            <option value="institucional">Institucional</option>
-            <option value="sistémico">Sistémico</option>
-          </select>
-          <select value={tension} onChange={e => setTension(e.target.value)} className="border rounded px-2 py-1">
-            <option value="psicológica">Psicológica</option>
-            <option value="política">Política</option>
-            <option value="ética">Ética</option>
-            <option value="simbólica">Simbólica</option>
-          </select>
-        </div>
-        <textarea
-          className="w-full border rounded px-3 py-2"
-          rows={3}
-          placeholder="Describe tu caso, dilema o reflexión..."
+      <h2 className="font-display text-2xl font-semibold mb-4">Laboratorio Socrático (Conversacional IA)</h2>
+      <div className="border rounded bg-card p-4 min-h-[300px] mb-4">
+        {messages.length === 0 && (
+          <div className="text-muted-foreground">Inicia la conversación con una pregunta, dilema o reflexión.</div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={msg.role === 'user' ? 'text-right mb-2' : 'text-left mb-2'}>
+            <span
+              className={
+                msg.role === 'user'
+                  ? 'inline-block bg-red-600 text-white font-bold rounded px-3 py-1 shadow'
+                  : 'inline-block bg-muted text-purple-700 font-bold rounded px-3 py-1 border border-purple-400 shadow'
+              }
+            >
+              {msg.content}
+            </span>
+          </div>
+        ))}
+      </div>
+      <form className="flex gap-2" onSubmit={handleSend}>
+        <input
+          className="flex-1 border rounded px-3 py-2"
+          placeholder="Escribe tu mensaje..."
           value={input}
           onChange={e => setInput(e.target.value)}
+          disabled={loading}
         />
         <button
           type="submit"
           className="px-4 py-2 rounded bg-primary text-primary-foreground font-semibold disabled:opacity-50"
-          disabled={loading || !input || !selectedQuestion}
+          disabled={loading || !input.trim()}
         >
-          {loading ? "Consultando IA..." : "Analizar con Gemini"}
+          {loading ? "Enviando..." : "Enviar"}
         </button>
       </form>
-      {respuesta && (
-        <div className="p-4 border rounded bg-muted">
-          <div className="font-bold mb-2 text-primary">Respuesta IA:</div>
-          <div className="whitespace-pre-line">{respuesta}</div>
-        </div>
-      )}
     </section>
   );
 }
