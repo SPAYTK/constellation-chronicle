@@ -1,8 +1,10 @@
 // Cliente LLM para análisis crítico y generación
+
 export const llmClient = {
 	analizar: async (prompt: string) => {
-		// Llamada real a Gemini API (ejemplo, sustituye la clave y endpoint por los tuyos)
-		const apiKey = process.env.VITE_GEMINI_API_KEY || '';
+		// Usar la clave Gemini de Vite (frontend)
+		const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+		if (!apiKey) throw new Error('Gemini API key no configurada');
 		const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
 		const body = {
 			contents: [{ parts: [{ text: prompt }] }],

@@ -5,14 +5,27 @@ import { SYSTEM_PROMPT } from "./systemPrompt";
 import { buildAgentPromptWithPilares, buildPilarAnalysisPrompt } from "./prompts";
 import { pilares } from "@/data/pilares";
 
-const GOOGLE_API_KEY = "AIzaSyCE2y7nxv8KJkJqDNULlj4gKALpPxtBQR0";
+
 const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent";
+
+// Obtiene la clave Gemini de entorno Vite (frontend) o Node (backend)
+function getGeminiApiKey() {
+  // Vite frontend
+  if (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) {
+    return import.meta.env.VITE_GEMINI_API_KEY;
+  }
+  // Node backend
+  if (typeof process !== 'undefined' && process.env && process.env.VITE_GEMINI_API_KEY) {
+    return process.env.VITE_GEMINI_API_KEY;
+  }
+  return null;
+}
 
 /**
  * Verifica si el agente está configurado con API real
  */
 export function isAgentConfigured(): boolean {
-  return !!GOOGLE_API_KEY;
+  return !!getGeminiApiKey();
 }
 
 /**
@@ -21,8 +34,8 @@ export function isAgentConfigured(): boolean {
  */
 export async function runAgent(input: AgentInput): Promise<AgentOutput> {
   try {
-    // Si no hay API key, lanzar error
-    if (!GOOGLE_API_KEY) {
+    const apiKey = getGeminiApiKey();
+    if (!apiKey) {
       throw new Error("API_KEY_MISSING");
     }
 
@@ -50,7 +63,7 @@ export async function runAgent(input: AgentInput): Promise<AgentOutput> {
       }
     };
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${GOOGLE_API_KEY}`, {
+    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(requestBody)
