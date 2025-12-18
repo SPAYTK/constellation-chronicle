@@ -19,8 +19,8 @@ export function SocraticQuestionsLab() {
       const laboratorioInput = {
         texto: input,
         ejes: ["ética"], // Puedes ajustar esto o hacerlo seleccionable
-        nivel: "individual" as "individual", // Tipo exacto
-        tension: "ética"
+        nivel: "individual" as "individual",
+        tension: "ética" as "ética"
       };
       const prompt = buildLaboratorioPrompt(laboratorioInput);
       const resp = await llmClient.analizar(prompt);
