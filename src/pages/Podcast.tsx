@@ -3,37 +3,29 @@ import { EpisodeCard } from "@/components/EpisodeCard";
 import { EpisodeMarkdown } from "@/components/EpisodeMarkdown";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import lagrangeMap from "@/data/lagrange/lagrange_map.json";
-import { getEpisodes, getChapters } from "@/services/podcastService";
+import { Loader2, Search } from "lucide-react";
+import { useEpisodes, useSearch } from "@/hooks/useData";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/utils/utils";
 
 export default function Podcast() {
   const navigate = useNavigate();
+  const { episodes, loading: episodesLoading, error: episodesError } = useEpisodes();
+  const { results: searchResults, loading: searchLoading, search } = useSearch();
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedEje, setSelectedEje] = useState<string | null>(null);
-  const [selectedTension, setSelectedTension] = useState<string | null>(null);
-  const [selectedCapitulo, setSelectedCapitulo] = useState<number | null>(null);
 
-  const episodes = getEpisodes();
-  const chapters = getChapters();
+  // Filter episodes based on search
+  const displayedEpisodes = searchQuery 
+    ? searchResults 
+    : episodes;
 
-  // Lógica para enlazar dinámicamente el audio
-  // Usar directamente el archivo real
-  const audioFileName = "Silenciar_la_conciencia_por_miedo_a_la_exclusión001.m4a";
-  const audioUrl = `${import.meta.env.BASE_URL}episodes/${audioFileName}`;
-
-  // Filter episodes based on selections
-  const filteredEpisodes = episodes.filter(episode => {
-    const episodeId = `E${episode.id}`;
-    const associatedQuestions = lagrangeMap.preguntas.filter(q => q.episodios.includes(episodeId));
-
-    if (selectedEje && !associatedQuestions.some(q => q.eje === selectedEje)) return false;
-    if (selectedTension && !associatedQuestions.some(q => q.tension === selectedTension)) return false;
-    if (selectedCapitulo) {
-      const chapter = chapters.find(c => c.id === selectedCapitulo);
-      if (!chapter || chapter.episodeId !== episode.id) return false;
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim()) {
+      search(query);
     }
-    return true;
-  });
+  };
 
   return (
     <div className="min-h-screen">
@@ -50,132 +42,72 @@ export default function Podcast() {
             </p>
           </div>
 
-          {/* Episodio Markdown de ejemplo */}
-          <div className="mb-12">
-            <h2 className="font-display text-2xl font-semibold mb-4">Episodio Destacado</h2>
-            <div className="mb-6">
-              <audio
-                key={audioUrl}
-                controls
-                controlsList="nodownload"
-                preload="auto"
-                className="w-full"
-                src={audioUrl}
-              >
-                Tu navegador no soporta la reproducción de audio.
-              </audio>
-              <span className="inline-block mt-2 px-3 py-1 text-xs bg-accent/30 border border-border rounded-full text-muted-foreground">
-                Archivo: {audioFileName}
-              </span>
-            </div>
+          {/* Search */}
+          <div className="mb-8 relative max-w-xl">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Buscar episodios..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-10"
+            />
+            {searchLoading && (
+              <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 animate-spin text-muted-foreground" />
+            )}
           </div>
 
-          {/* Filters */}
-          <div className="mb-8">
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-sm font-medium mr-2">Eje:</span>
-              <button
-                onClick={() => setSelectedEje(null)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs transition-all border",
-                  !selectedEje
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                )}
-              >
-                Todos
-              </button>
-              {lagrangeMap.ejes.map((eje) => (
-                <button
-                  key={eje.id}
-                  onClick={() => setSelectedEje(eje.id)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs transition-all border",
-                    selectedEje === eje.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                  )}
-                >
-                  {eje.nombre}
-                </button>
-              ))}
+          {/* Loading / Error States */}
+          {episodesLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground">Cargando episodios...</span>
             </div>
-
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span className="text-sm font-medium mr-2">Tensión:</span>
-              <button
-                onClick={() => setSelectedTension(null)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs transition-all border",
-                  !selectedTension
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                )}
-              >
-                Todas
-              </button>
-              {["alta", "media", "baja"].map((tension) => (
-                <button
-                  key={tension}
-                  onClick={() => setSelectedTension(tension)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs transition-all border",
-                    selectedTension === tension
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                  )}
-                >
-                  {tension.charAt(0).toUpperCase() + tension.slice(1)}
-                </button>
-              ))}
+          ) : episodesError ? (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 text-center">
+              <p className="text-destructive font-semibold">Error al cargar episodios</p>
+              <p className="text-sm text-destructive/80">{episodesError.message}</p>
             </div>
-
-            <div className="flex flex-wrap gap-2">
-              <span className="text-sm font-medium mr-2">Capítulo:</span>
-              <button
-                onClick={() => setSelectedCapitulo(null)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs transition-all border",
-                  !selectedCapitulo
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                )}
-              >
-                Todos
-              </button>
-              {chapters.map((chapter) => (
-                <button
-                  key={chapter.id}
-                  onClick={() => setSelectedCapitulo(chapter.id)}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs transition-all border",
-                    selectedCapitulo === chapter.id
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : "bg-transparent text-muted-foreground border-border hover:border-primary/50"
-                  )}
-                >
-                  {chapter.id.toString().padStart(2, "0")}
-                </button>
-              ))}
+          ) : displayedEpisodes.length === 0 ? (
+            <div className="text-center py-20">
+              <p className="text-muted-foreground mb-2">No se encontraron episodios</p>
+              {searchQuery && (
+                <p className="text-sm text-muted-foreground/60">
+                  Intenta con otra búsqueda
+                </p>
+              )}
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Episodes Grid */}
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-8">
+                {displayedEpisodes.map((episode) => (
+                  <EpisodeCard 
+                    key={episode.id} 
+                    episode={episode} 
+                    onClick={() => navigate(`/podcast/${episode.slug}`)} 
+                  />
+                ))}
+              </div>
 
-          {/* Episodes Grid */}
-          <div className="grid gap-4 md:grid-cols-2">
-            {filteredEpisodes.map((episode) => (
-              <EpisodeCard key={episode.id} episode={episode} onClick={() => navigate(`/podcast/${episode.id}`)} />
-            ))}
-          </div>
+              {/* Pagination Info */}
+              <div className="text-center text-sm text-muted-foreground py-8 border-t border-border/50">
+                Mostrando {displayedEpisodes.length} episodio{displayedEpisodes.length !== 1 ? 's' : ''}
+              </div>
+            </>
+          )}
 
           {/* Coming Soon */}
-          <div className="mt-12 text-center py-12 border border-dashed border-border rounded-lg">
-            <p className="text-muted-foreground">
-              Más episodios próximamente...
-            </p>
-            <p className="text-sm text-muted-foreground/60 mt-2">
-              52 espinas narrativas por explorar
-            </p>
-          </div>
+          {!searchQuery && (
+            <div className="mt-12 text-center py-12 border border-dashed border-border rounded-lg">
+              <p className="text-muted-foreground">
+                Más episodios próximamente...
+              </p>
+              <p className="text-sm text-muted-foreground/60 mt-2">
+                52 espinas narrativas por explorar
+              </p>
+            </div>
+          )}
         </div>
       </main>
     </div>

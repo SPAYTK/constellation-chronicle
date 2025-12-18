@@ -1,14 +1,17 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Headphones, Map, BookOpen } from "lucide-react";
+import { ArrowRight, Headphones, Map, BookOpen, Loader2 } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 import { AudioPlayer } from "@/components/AudioPlayer";
 import { EpisodeCard } from "@/components/EpisodeCard";
 import { Button } from "@/components/ui/button";
-import { getLatestEpisodes } from "@/services/podcastService";
-
-const latestEpisodes = getLatestEpisodes(3);
+import { useEpisodes } from "@/hooks/useData";
 
 export default function Index() {
+  const { episodes: allEpisodes, loading, error } = useEpisodes();
+  
+  // Get the latest 3 episodes
+  const latestEpisodes = allEpisodes.slice(0, 3);
+  
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -93,11 +96,23 @@ export default function Index() {
             </Link>
           </div>
           
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {latestEpisodes.map((episode) => (
-              <EpisodeCard key={episode.id} episode={episode} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-3 text-muted-foreground">Cargando episodios...</span>
+            </div>
+          ) : error ? (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 text-center">
+              <p className="text-destructive font-semibold">Error al cargar episodios</p>
+              <p className="text-sm text-destructive/80">{error.message}</p>
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {latestEpisodes.map((episode) => (
+                <EpisodeCard key={episode.id} episode={episode} />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

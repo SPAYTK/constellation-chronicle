@@ -2,42 +2,46 @@ import { useParams, Link } from "react-router-dom";
 import { Navigation } from "@/components/Navigation";
 import { EpisodeMarkdown } from "@/components/EpisodeMarkdown";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Map } from "lucide-react";
-import { getEpisodeBySlug, getChapters } from "@/services/podcastService";
-import { pipe } from 'fp-ts/function';
-import * as O from 'fp-ts/Option';
-import lagrangeMap from "@/data/lagrange/lagrange_map.json";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import { useEpisodeBySlug } from "@/hooks/useData";
 
 export default function Episode() {
   const { slug } = useParams<{ slug: string }>();
-  const episode = pipe(
-    getEpisodeBySlug(slug!),
-    O.getOrElse(() => null as any)
-  );
-  const chapters = getChapters();
-  const chapter = chapters.find(c => c.id === episode?.chapterId);
+  const { episode, loading, error } = useEpisodeBySlug(slug!);
 
-  if (!episode) {
+  if (loading) {
     return (
       <div className="min-h-screen">
         <Navigation />
         <main className="pt-24 pb-20">
-          <div className="container mx-auto px-4 text-center">
-            <h1 className="text-2xl font-bold">Episodio no encontrado</h1>
+          <div className="container mx-auto px-4 flex items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <span className="ml-3 text-muted-foreground">Cargando episodio...</span>
           </div>
         </main>
       </div>
     );
   }
 
-  // Find associated questions
-  const associatedQuestions = lagrangeMap.preguntas.filter(q =>
-    q.episodios.includes(`E${episode.id}`)
-  );
+  if (error || !episode) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <main className="pt-24 pb-20">
+          <div className="container mx-auto px-4 text-center">
+            <h1 className="text-2xl font-bold text-destructive">Episodio no encontrado</h1>
+            {error && <p className="text-sm text-destructive/80 mt-2">{error.message}</p>}
+            <Link to="/podcast" className="mt-4 inline-block">
+              <Button variant="default">Volver al podcast</Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
-  // Assume audio file naming convention
-  const audioFileName = `episode_${episode.id}.m4a`; // Adjust as needed
-  const audioUrl = `${import.meta.env.BASE_URL}episodes/${audioFileName}`;
+  // Audio URL from Supabase Storage or fallback
+  const audioUrl = episode.audio_url || `${import.meta.env.BASE_URL}episodes/${episode.slug}.m4a`;
 
   return (
     <div className="min-h-screen">
