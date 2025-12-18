@@ -9,6 +9,7 @@ export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -25,19 +26,21 @@ export default function Auth() {
 
     const { error } = isLogin 
       ? await signIn(email, password)
-      : await signUp(email, password);
+      : await signUp(email, password, name);
 
     if (error) {
       toast.error(error.message);
     } else if (!isLogin) {
       toast.success('Cuenta creada. Revisa tu email para confirmar.');
+    } else {
+      toast.success('¡Acceso exitoso!');
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-lagrange-dark flex items-center justify-center px-4">
+    <div className="min-h-screen bg-lagrange-dark flex items-center justify-center px-4 pt-20">
       <div className="w-full max-w-md">
         <div className="bg-lagrange-darker border border-lagrange-border rounded-lg p-8">
           <h1 className="text-2xl font-bold text-lagrange-text mb-2 text-center">
@@ -48,6 +51,18 @@ export default function Auth() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div>
+                <Input
+                  type="text"
+                  placeholder="Nombre"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="bg-lagrange-dark border-lagrange-border text-lagrange-text"
+                />
+              </div>
+            )}
             <div>
               <Input
                 type="email"
@@ -80,11 +95,26 @@ export default function Auth() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setEmail('');
+                setPassword('');
+                setName('');
+              }}
               className="text-lagrange-muted hover:text-lagrange-text text-sm"
             >
               {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
             </button>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-lagrange-border">
+            <p className="text-xs text-lagrange-muted text-center">
+              {isLogin ? (
+                <>Para pruebas: email@example.com / contraseña</>
+              ) : (
+                <>Recibirás un email de confirmación</>
+              )}
+            </p>
           </div>
         </div>
       </div>

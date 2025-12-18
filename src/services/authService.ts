@@ -2,6 +2,7 @@ import * as R from 'ramda';
 import * as E from 'fp-ts/Either';
 import * as TE from 'fp-ts/TaskEither';
 import * as O from 'fp-ts/Option';
+import { supabase } from '@/integrations/supabase/client';
 
 // Immutable types
 export interface User {
@@ -27,12 +28,13 @@ export interface SignUpData extends Credentials {
   readonly name: string;
 }
 
-// Pure function for mock user validation
-const validateCredentials = (email: string, password: string): boolean =>
-  email === 'editor@constellation.com' && password === 'editor123';
-
-// Pure function to create user
-const createUser = (id: string, email: string, name: string, role: User['role'] = 'user'): User => ({
+// Pure function to create user from Supabase auth + profile data
+const createUserFromSupabase = (
+  id: string,
+  email: string,
+  name: string,
+  role: 'user' | 'editor' | 'admin' = 'user'
+): User => ({
   id,
   email,
   name,
@@ -40,44 +42,83 @@ const createUser = (id: string, email: string, name: string, role: User['role'] 
   createdAt: new Date()
 });
 
-// Pure function to create editor user
-const createEditorUser = (email: string): User =>
-  createUser('1', email, 'Editor', 'editor');
+// Fetch user profile from database
+const fetchUserProfile = async (userId: string): Promise<O.Option<User>> => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, email, name, role')
+      .eq('id', userId)
+      .single();
 
-// Pure function to create regular user
-const createRegularUser = (email: string, name: string): User =>
-  createUser(Date.now().toString(), email, name, 'user');
+    if (error) {
+      console.error('Error fetching profile:', error);
+      return O.none;
+    }
 
-// Pure functions for localStorage operations
+    return O.some(
+      createUserFromSupabase(
+        data.id,
+        data.email,
+        data.name,
+        data.role as 'user' | 'editor' | 'admin'
+      )
+    );
+  } catch (error) {
+    console.error('Error in fetchUserProfile:', error);
+    return O.none;
+  }
+};
+
+// Pure functions for localStorage operations (cache)
 const storeUser = (user: User): void =>
-  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem('auth_user', JSON.stringify(user));
 
 const clearStoredUser = (): void =>
-  localStorage.removeItem('user');
+  localStorage.removeItem('auth_user');
 
 const getStoredUser = (): O.Option<User> =>
   R.pipe(
-    () => localStorage.getItem('user'),
+    () => localStorage.getItem('auth_user'),
     O.fromNullable,
     O.chain(stored =>
       E.tryCatch(
         () => JSON.parse(stored),
         () => undefined
-      ) as any // Type assertion for simplicity
+      ) as any
     ),
     O.filter((user: any) => user && typeof user === 'object' && user.id)
   )();
 
-// Functional authentication operations
+
+// Functional authentication operations using Supabase
 export const signIn = (credentials: Credentials): TE.TaskEither<Error, User> =>
   TE.tryCatch(
     async () => {
-      if (validateCredentials(credentials.email, credentials.password)) {
-        const user = createEditorUser(credentials.email);
-        storeUser(user);
-        return user;
-      }
-      throw new Error('Invalid credentials');
+      // Sign in with Supabase Auth
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      });
+
+      if (error) throw new Error(error.message);
+      if (!data.user) throw new Error('No user returned from sign in');
+
+      // Fetch user profile
+      const profileOption = await fetchUserProfile(data.user.id);
+      
+      const user = O.fold(
+        () => createUserFromSupabase(
+          data.user.id,
+          data.user.email || credentials.email,
+          data.user.user_metadata?.name || 'User',
+          'user'
+        ),
+        (profile: User) => profile
+      )(profileOption);
+
+      storeUser(user);
+      return user;
     },
     (error) => error as Error
   );
@@ -85,7 +126,42 @@ export const signIn = (credentials: Credentials): TE.TaskEither<Error, User> =>
 export const signUp = (data: SignUpData): TE.TaskEither<Error, User> =>
   TE.tryCatch(
     async () => {
-      const user = createRegularUser(data.email, data.name);
+      // Create user with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name
+          }
+        }
+      });
+
+      if (authError) throw new Error(authError.message);
+      if (!authData.user) throw new Error('No user returned from sign up');
+
+      // Create profile in database
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: authData.user.id,
+          email: data.email,
+          name: data.name,
+          role: 'user'
+        });
+
+      if (profileError) {
+        console.error('Error creating profile:', profileError);
+        // Don't throw - auth succeeded even if profile creation fails
+      }
+
+      const user = createUserFromSupabase(
+        authData.user.id,
+        data.email,
+        data.name,
+        'user'
+      );
+
       storeUser(user);
       return user;
     },
@@ -95,6 +171,8 @@ export const signUp = (data: SignUpData): TE.TaskEither<Error, User> =>
 export const signOut = (): TE.TaskEither<Error, void> =>
   TE.tryCatch(
     async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw new Error(error.message);
       clearStoredUser();
     },
     (error) => error as Error
