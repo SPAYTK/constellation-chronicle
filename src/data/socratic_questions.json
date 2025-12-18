@@ -1,0 +1,7 @@
+[
+  { "id": 1, "question": "¿Qué legitimidad tiene el miedo institucionalizado?", "axis": "Miedo" },
+  { "id": 2, "question": "¿Quién controla la definición de salud mental?", "axis": "Control" },
+  { "id": 3, "question": "¿Puede la responsabilidad ser una forma de opresión simbólica?", "axis": "Responsabilidad" },
+  { "id": 4, "question": "¿Qué ocurre cuando la ética se convierte en protocolo?", "axis": "Legitimidad" },
+  { "id": 5, "question": "¿La adaptación es siempre saludable?", "axis": "Salud Mental" }
+]

@@ -1,0 +1,7 @@
+[
+  { "from": "n1", "to": "n2", "type": "relacion", "tension": "miedo-control" },
+  { "from": "n2", "to": "n3", "type": "relacion", "tension": "control-legitimidad" },
+  { "from": "n3", "to": "n4", "type": "relacion", "tension": "legitimidad-salud" },
+  { "from": "n4", "to": "n5", "type": "relacion", "tension": "salud-responsabilidad" },
+  { "from": "n5", "to": "n1", "type": "relacion", "tension": "responsabilidad-miedo" }
+]

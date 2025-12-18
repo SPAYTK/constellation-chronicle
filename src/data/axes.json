@@ -1,0 +1,7 @@
+[
+  { "id": "Miedo", "label": "Miedo", "color": "#e53e3e" },
+  { "id": "Control", "label": "Control", "color": "#3182ce" },
+  { "id": "Legitimidad", "label": "Legitimidad", "color": "#38a169" },
+  { "id": "Salud Mental", "label": "Salud Mental", "color": "#d69e2e" },
+  { "id": "Responsabilidad", "label": "Responsabilidad", "color": "#805ad5" }
+]

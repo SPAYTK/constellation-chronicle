@@ -29,6 +29,18 @@ export function EpisodeCard({ episode, onClick }: EpisodeCardProps) {
             <span className="text-xs text-muted-foreground">
               {episode.duration}
             </span>
+            {episode.axis && (
+              <>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-xs text-primary font-bold">{episode.axis}</span>
+              </>
+            )}
+            {episode.tension && (
+              <>
+                <span className="text-muted-foreground">·</span>
+                <span className="text-xs text-destructive font-bold">{episode.tension}</span>
+              </>
+            )}
           </div>
           
           <h3 className="font-display text-lg font-semibold mb-2 group-hover:text-primary transition-colors">

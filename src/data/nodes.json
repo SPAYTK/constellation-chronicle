@@ -1,0 +1,7 @@
+[
+  { "id": "n1", "axis": "Miedo", "level": "individual", "tension": "psicológica", "label": "Vigilia interior" },
+  { "id": "n2", "axis": "Control", "level": "institucional", "tension": "política", "label": "Gestión de la norma" },
+  { "id": "n3", "axis": "Legitimidad", "level": "sistémico", "tension": "ética", "label": "Autoridad simbólica" },
+  { "id": "n4", "axis": "Salud Mental", "level": "individual", "tension": "psicológica", "label": "Adaptación forzada" },
+  { "id": "n5", "axis": "Responsabilidad", "level": "institucional", "tension": "simbólica", "label": "Carga moral" }
+]

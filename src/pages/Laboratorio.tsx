@@ -2,6 +2,7 @@ import { Navigation } from "@/components/Navigation";
 import { useState } from "react";
 import { lagrangeEpisodesSchema } from "../data/lagrangeEpisodesSchema";
 import { generarEpisodioGemini } from "../hooks/useLaboratorioIA";
+import { SocraticQuestionsLab } from "@/components/SocraticQuestionsLab";
 // Componente para mostrar y generar episodios con Gemini 2.0
 function EpisodioGemini() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -117,6 +118,9 @@ export default function Laboratorio() {
 
           {/* Episodios Gemini 2.0 */}
           <EpisodioGemini />
+
+          {/* Preguntas Socráticas */}
+          <SocraticQuestionsLab />
 
           {/* Tools Grid */}
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-16">

@@ -49,7 +49,7 @@ export default function Podcast() {
           {/* Episodes Grid */}
           <div className="grid gap-4 md:grid-cols-2">
             {episodes.map((episode) => (
-              <EpisodeCard key={episode.id} episode={episode} />
+              <EpisodeCard key={episode.id} episode={episode} onClick={() => {}} />
             ))}
           </div>
 

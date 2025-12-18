@@ -7,6 +7,8 @@ export interface Episode {
   audioUrl?: string;
   chapterId: number;
   season: number;
+  axis?: string;
+  tension?: string;
 }
 
 export const episodes: Episode[] = [
@@ -18,6 +20,8 @@ export const episodes: Episode[] = [
     publishedAt: "2024-01-15",
     chapterId: 1,
     season: 1,
+    axis: "Miedo",
+    tension: "psicológica",
   },
   {
     id: 2,
@@ -27,6 +31,8 @@ export const episodes: Episode[] = [
     publishedAt: "2024-01-22",
     chapterId: 2,
     season: 1,
+    axis: "Control",
+    tension: "política",
   },
   {
     id: 3,
