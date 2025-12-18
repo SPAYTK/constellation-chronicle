@@ -39,27 +39,14 @@ npm run dev
 **Edit a file directly in GitHub**
 
 - Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
 **Use GitHub Codespaces**
 
 - Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
 ## What technologies are used for this project?
 
 This project is built with:
 
 - Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
 ## How can I deploy this project?
 
 Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
@@ -71,3 +58,26 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+
+
+# Lagrange en Llamas
+
+Sistema narrativo interactivo, modular y extensible, gobernado por corpus crítico estructurado.
+
+## Estructura
+- SPA como grafo navegable (no menú lineal)
+- Podcast, Mapa Lagrange, Capítulos, Laboratorio IA, Auth
+- Separación clara entre corpus, narrativa, presentación y automatización
+
+## Scripts
+- sync-episodes.cjs: sincroniza episodios
+- generate-script.ipynb: generación de guiones con IA
+- text-to-audio.js: conversión texto a audio
+- deploy.sh: despliegue automatizado
+
+## Control de calidad
+- Toda entrada revisada por humano antes de publicación
+- IA solo como asistente, nunca publicador automático
+
+## Prompt Maestro Rector
+Ver src/control/prompt_maestro.ts

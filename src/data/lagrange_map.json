@@ -1,0 +1,9 @@
+{
+  "nodes": [
+    { "id": "n1", "axis": "Miedo", "level": "individual", "tension": "psicológica" },
+    { "id": "n2", "axis": "Control", "level": "institucional", "tension": "política" }
+  ],
+  "edges": [
+    { "from": "n1", "to": "n2", "type": "relacion" }
+  ]
+}

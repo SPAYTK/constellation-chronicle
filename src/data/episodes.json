@@ -1,0 +1,4 @@
+[
+  { "id": "e1", "title": "El origen del miedo", "axis": "Miedo", "level": "individual", "tension": "psicológica" },
+  { "id": "e2", "title": "El poder del control", "axis": "Control", "level": "institucional", "tension": "política" }
+]
